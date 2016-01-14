@@ -1,3 +1,6 @@
+#ifndef OCTAMAP_H
+#define OCTAMAP_H
+
 #include <vcg/space/point3.h>
 using namespace vcg;
 #include <vector>
@@ -345,3 +348,4 @@ public:
 
 
 
+#endif

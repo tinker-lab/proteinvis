@@ -5,6 +5,9 @@ using namespace std;
 #include "app/include/Mol.h"
 #include "app/include/MyCanvas.h"
 
+#ifndef SHADOWMAP_H
+#define SHADOWMAP_H
+
 
 extern bool validView(Point3f p);
 
@@ -49,3 +52,4 @@ static void UnBind();
 
 //bool createOffsetFrame(uint &frameID, uint &textureID, int screensize, int flags);
 
+#endif

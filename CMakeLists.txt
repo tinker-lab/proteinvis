@@ -78,7 +78,6 @@ set (HEADERFILES
 		app/include/CubeMapSamp.h
 		app/include/gen_normal.h
 		app/include/HardSettings.h
-		app/include/main.h
 		app/include/Mol.h
 		app/include/MyCanvas.h
 		app/include/OctaMapSamp.h

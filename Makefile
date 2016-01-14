@@ -56,7 +56,7 @@ use_boost:
 	cd ./build/Debug; cmake -DUSE_BOOST=ON -DCMAKE_BUILD_TYPE=Debug ../../
 	cd ../$(DIRNAME)_eclipse; cmake -DUSE_BOOST=ON -DCMAKE_BUILD_TYPE=Debug $(CURDIR) -G "Eclipse CDT4 - Unix Makefiles" -DCMAKE_ECLIPSE_VERSION=4.3
     else ifeq ($(ARCH), WIN32)
-	cd ./build; cmake ../ -DUSE_BOOST=ON -G "Visual Studio 10 Win64"
+	cd ./build; cmake ../ -DUSE_BOOST=ON -G "Visual Studio 11 Win64"
     else ifeq ($(ARCH), OSX)
 	cd ./build; cmake ../ -DUSE_BOOST=ON -G Xcode
     endif

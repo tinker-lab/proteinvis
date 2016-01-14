@@ -1,4 +1,7 @@
 
+#ifndef CGUTIL_H
+#define CGUTIL_H
+
 class GeoSettings {
 public:
   typedef enum{ SPACE_FILL, BALL_N_STICKS, LICORICE }  GeoMode;
@@ -221,4 +224,6 @@ private:
 
 
 };
+
+#endif
 

@@ -14,7 +14,6 @@ typedef unsigned int uint;
 #include <vcg/space/color4.h>
 
 #include "app/include/gen_normal.h"
-#include <wrap/gui/trackball.h>
 
 using namespace vcg;
 using namespace std;
@@ -29,7 +28,7 @@ using namespace std;
 #include "app/include/MyCanvas.h"
 
 #include "app/include/ShadowMap.h"
-#include "app/include/CGUtill.h"
+#include "app/include/CgUtil.h"
 
 extern CgUtil shadowSettings;  
 extern CgUtil shadowSettingsAcc;  
@@ -109,10 +108,6 @@ int winx=512,winy=winx;
 int CSIZE;  // size (texels) per atom patches
 int BSIZE;  // size (texels) per pond patches
 
-
-
-vcg::Trackball track;
-vcg::Trackball lightTrack;
 bool MovingLightMode=false;
 
 int GetCurrentHetatm(){
@@ -144,7 +139,7 @@ Byte* GetSnapshot(int sx, int sy, bool alpha){
   mainCanvas.SetRes(sx);
   //hardsx=mainCanvas.GetHardRes();
   
-  if (!mainCanvas.SetAsOutput()) return NULL; 
+  if (!mainCanvas.SetAsOutput()) return nullptr; 
 
   drawFrame();
   
@@ -759,6 +754,7 @@ bool Mol::PrepareAOSingleView(){
   i++; if (i>DirV.size()) i=0;
   AOgpu2::UnBind();
   AOdoneLvl=DirV.size();
+  return true;
 }
 
 bool Mol::PrepareAOstep(int nsteps){
@@ -778,21 +774,13 @@ bool Mol::PrepareAOstep(int nsteps){
 void Mol::PrepareAOallAtOnce(){
   if (AOready) return;
   
-  StartTime();
+  //StartTime();
   
   while (!PrepareAOstep(1));
     
   //AOgpu2::GetFinalTexture(texture,*this);
             //refresh();
             
-  FILE *f = fopen("res.txt", "w");
-  long int w=TakeTime(f,"sampled");
-            
-  fprintf(f,"          %d views done in %d msec (%.2f views x sec), with %d atoms & %d sticks.\n",
-     DirV.size(), w,
-     DirV.size()*1000.0/w, this->atom.size(),
-     this->sticks?(this->bond.size()):0 );
-  fclose(f);
 
   AOready=true;
 }
@@ -810,51 +798,6 @@ void setLightDir(Point3f d){
   f[2]=d[2];
   f[3]=0;
   glLightfv(GL_LIGHT0, GL_POSITION, f );
-}
-
-Point3f getDirFromTrackball(vcg::Trackball &tb){
-  glPushMatrix();
-  gluLookAt(1,-3,-5,   0,0,0,   0,1,0);    
-
-  tb.center=Point3f(0, 0, 0);
-  tb.radius= 1;
-  
-	tb.GetView();
-  tb.Apply(false);
-
-  float pos[4]={0.0f,0.0f,-1.0f,0.0f};
-  float d[16];
-  glGetFloatv(GL_MODELVIEW_MATRIX,d);
-  glPopMatrix();
-  
-  Point3f res(-d[8],-d[9],-d[10]);
-  res.Normalize();
-  return res;
-
-}
-
-
-void drawLightDir()
-{
-	glPushMatrix();
-	lightTrack.GetView();
-  lightTrack.Apply(false);
-#if 0
-    glPushAttrib(GL_ENABLE_BIT | GL_CURRENT_BIT);
-	glColor3f(1,1,0);
-    glDisable(GL_LIGHTING);
-    const int lineNum=3;
-	glBegin(GL_LINES);
-    for(unsigned int i=0;i<=lineNum;++i)
-      for(unsigned int j=0;j<=lineNum;++j) {
-        glVertex3f(-1.0f+i*2.0/lineNum,-1.0f+j*2.0/lineNum,-2);
-        glVertex3f(-1.0f+i*2.0/lineNum,-1.0f+j*2.0/lineNum, 2);
-      }
-	glEnd();
-    glPopAttrib();
-#endif
-    
-	glPopMatrix();
 }
 
 void drawFrame() {
@@ -893,12 +836,7 @@ void drawFrame() {
   
   Point3f lightDir;
   
-  if  ( cgSettings.P_sem_effect  // fixed light dir sem effect
-//    || mol.sticks               // quick Hack: fixed light dir when bonds
-    )
-    lightDir= Point3f(0,0,1);
-  else 
-    lightDir=getDirFromTrackball(lightTrack);
+  lightDir= Point3f(0,0,1);
     
   setLightDir( lightDir );
 
@@ -906,7 +844,6 @@ void drawFrame() {
 //  gluLookAt(0,0,-3,   0,0,0,   0,1,0);    ok for tra
 
   gluLookAt(0,0,-40,   0,0,0,   0,1,0);    
-  if(MovingLightMode) drawLightDir();
   glColor3f(1,1,1);
   if (1) {
     
@@ -950,8 +887,10 @@ void drawFrame() {
     }
     
     setProjection( mainCanvas.GetVideoSize() );
-    track.GetView();
-    track.Apply(false);
+   
+	//TODO:---------------------set object to world here
+	//track.GetView();
+    //track.Apply(false);
     setProjection( mainCanvas.GetSoftRes() );
     
     
@@ -1070,22 +1009,7 @@ Point3f RandomUnitVec(){
 
 long int globaltime,startingtime;
 
-void StartTime();/*{
-  startingtime=globaltime=getTicks();
-}*/
 
-long int TakeTime(FILE *f , char *st);/*{
-  long int timen=getTicks(), delta=timen-globaltime;
-  fprintf(f,"%5dmsec: %s\n",delta,st);
-  globaltime=timen;
-  return delta;
-}*/
-/*long int TakeTotalTime(){
-  long int timen=getTicks(), delta=timen-startingtime;
-  printf("------------------\nTotal time: %5dmsec\n",delta);
-  globaltime=timen;
-  return delta;
-}*/
 
 float myfabs(float a){
   return (a<0)?-a:a;

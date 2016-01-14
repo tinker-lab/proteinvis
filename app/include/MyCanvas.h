@@ -1,4 +1,5 @@
-
+#ifndef MYCANVAS_H
+#define MYCANVAS_H
 
 class MyCanvas{
 public:
@@ -45,3 +46,4 @@ private:
 extern MyCanvas mainCanvas, haloCanvas, moltextureCanvas, shadowmapCanvas, shadowAOCanvas;
 
 
+#endif

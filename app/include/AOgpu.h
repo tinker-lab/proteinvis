@@ -4,6 +4,11 @@ using namespace vcg;
 using namespace std;
 #include "app/include/Mol.h"
 #include <stdio.h>
+
+#ifndef AOGPU_H
+#define AOGPU_H
+
+
 class AOgpu{
 //private:
   Point3f dir; // direction
@@ -31,3 +36,5 @@ AOgpu( Point3f _dir, Mol &m);
 static void GetFinalTexture(vector<Byte> &text, Mol &m);
 
 };
+
+#endif

@@ -4,6 +4,9 @@ using namespace vcg;
 using namespace std;
 #include "app/include/OctaMapSamp.h"
 
+#ifndef MOL_H
+#define MOL_H
+
 class MyString{
 public:
 	int last;
@@ -248,3 +251,4 @@ private:
 
 extern float stick_radius;
 
+#endif

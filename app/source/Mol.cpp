@@ -463,8 +463,6 @@ bool Mol::ReadPdb(const char *_filename){
     }
 
 
-    
-    if (showprogress) EndProgress();
     //if (sticks) FindBonds();
     
     //ReassignTextureAutosize();

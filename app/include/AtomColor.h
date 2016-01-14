@@ -1,4 +1,7 @@
 
+#ifndef ATOMCOLOR_H
+#define ATOMCOLOR_H
+
 
 int getAtomColor(const char* atomicElement);
 float getAtomRadius(const char* atomicElement);
@@ -12,7 +15,7 @@ int getChainColor(int chianIndex);
 bool readArtFile(const char* filename);                                  
                                                            
                                                            
-                                                           
+#endif                                                          
                                                            
                                                            
                                                            

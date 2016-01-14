@@ -1,6 +1,9 @@
 // HARD SETTINGS:
 // Settings affecting performance / quality ratio
 
+#ifndef HARDSETTINGS_H
+#define HARDSETTINGS_H
+
 const int NNAMES=24;
 
 class HardSettings{
@@ -54,3 +57,5 @@ private:
 };
 
 extern HardSettings hardSettings; // SINGLETON
+
+#endif

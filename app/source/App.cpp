@@ -159,57 +159,10 @@ void App::loadEventStream(const std::string &eventStreamFilename)
 	fclose (pFile);
 
 	ByteStream stream(buffer, lSize);
-	replayEventStream(stream);
 
 	delete [] buffer;
 }
 
-void App::replayEventStream(ByteStream stream)
-{
-	int numEvents = stream.readInt();
-
-	bool replayInRealTime = true;
-
-	_replayingStream = true;
-
-	//Throw all of the current state away
-	_eventsToSave.clear();
-
-	//_eventsForText << "---------------------- REPLAYING ------------------------"<<std::endl;
-
-	std::vector<EventRef> queue;
-
-	std::cout<<"Replaying "<<numEvents<<" events."<<std::endl;
-
-	MinVR::TimeStamp start = getCurrentTime();
-	for(int i=0; i < numEvents; i++) {
-		ByteData data = stream.readByteData();
-		//if (i > numEvents - 1000) {
-		//	std::cout<< byteDataToEvent(data)->toString()<<std::endl;
-		//	std::flush(std::cout);
-		//}
-		MinVR::EventRef event = byteDataToEvent(data);
-		if (event->getName() == "FinishedQueue") {
-			double timeOffset = event->get1DData();
-
-			if (replayInRealTime) {
-				while((getDuration(getCurrentTime(), start)).total_milliseconds() < timeOffset) {
-					boost::this_thread::sleep_for(boost::chrono::milliseconds(2));
-				}
-				//std::cout<<"TimeOffset "<<timeOffset<<" Duration: "<< (getDuration(getCurrentTime(), start)).total_milliseconds()<<std::endl;
-			}
-
-			doUserInputAndPreDrawComputation(queue, 0.0);
-			queue.clear();
-		}
-		else {
-			queue.push_back(event);
-		}
-	}
-	doUserInputAndPreDrawComputation(queue, 0.0);
-
-	_replayingStream = false;
-}
 
 /** Each time you change the format of this, increase the
     SERIALIZE_VERSION_NUMBER and respond accordingly in the
@@ -424,24 +377,7 @@ void App::doUserInputAndPreDrawComputation(const std::vector<MinVR::EventRef>& e
 		else if (events[i]->getName() == "kbd_SPACE_down") {
 			cFrameMgr->setRoomToVirtualSpaceFrame(glm::dmat4(1.0)); 
 		}
-		else if (events[i]->getName() == "kbd_S_down" && !_replayingStream) {
-			std::string eventStreamFile = MinVR::ConfigVal("EventStreamFilePrefix", "EventStream", false);
-			boost::posix_time::time_facet* facet = new boost::posix_time::time_facet();
-			facet->format("%Y-%m-%d.%H.%M.%S");
-			std::stringstream stream;
-			stream.imbue(std::locale(stream.getloc(), facet));
-			stream << boost::posix_time::second_clock::local_time();
-			eventStreamFile += "-" + stream.str() + ".bin";
-			saveEventStream(eventStreamFile);
-		}
-		else if (events[i]->getName() == "kbd_R_down") {
-			std::string eventStreamFile = MinVR::ConfigVal("EventStreamToReplay", "EventStream", false);
-			loadEventStream(eventStreamFile);
-		}
-		//Save to the bytestream
-		if (std::find(_logIgnoreList.begin(), _logIgnoreList.end(), events[i]->getName()) == _logIgnoreList.end()) {
-			_eventsToSave.push_back(eventToByteData(events[i]));
-		}
+	
 
 		//_eventsForText << events[i]->toString() << std::endl;
 
@@ -449,13 +385,6 @@ void App::doUserInputAndPreDrawComputation(const std::vector<MinVR::EventRef>& e
 
 	currentHCIMgr->currentHCI->update(events);
 	
-	double timeOffset =  (getDuration(getCurrentTime(), programStart)).total_milliseconds();
-	//std::cout<<"Timeoffset "<<timeOffset<<std::endl;
-	MinVR::EventRef finishEvent(new Event("FinishedQueue", timeOffset));
-	//std::cout<<"\tFinish Event "<<finishEvent->toString()<<std::endl;
-	//std::cout<<"\tdata: "<<finishEvent->get1DData()<<std::endl;
-	//std::cout<<"\tdata: "<<byteDataToEvent(eventToByteData(finishEvent))->get1DData()<<std::endl;
-	_eventsToSave.push_back(eventToByteData(finishEvent));
 }
 
 void App::initializeContextSpecificVars(int threadId,
@@ -492,12 +421,12 @@ void App::initializeContextSpecificVars(int threadId,
 
 	currentHCIMgr->currentHCI = origAnchoredHCI;
 
-	initGL();
-	initVBO(threadId, window);
-	initLights();
+	//initGL();
+	//initVBO(threadId, window);
+	//initLights();
 
-	axis->initializeContextSpecificVars(threadId, window);
-	feedback->initializeContextSpecificVars(threadId, window);
+	//axis->initializeContextSpecificVars(threadId, window);
+	//feedback->initializeContextSpecificVars(threadId, window);
 
 	
 	GLenum err;
@@ -505,7 +434,39 @@ void App::initializeContextSpecificVars(int threadId,
 		std::cout << "openGL ERROR in initializeContextSpecificVars: "<<err<<std::endl;
 	}
 	
+
 	
+	hardSettings.OnStart();
+    
+	moltextureCanvas.SetRes(hardSettings.TSIZE);
+
+    cgSettings.SetDefaults(); // <-- quick hack (solves wrong constructor order): 
+
+	InitQuteMol("a55DNA.pdb");
+
+	initGl();
+
+	//load the preset visualization technique
+	cgSettings.Load("presets/real2.preset");
+	cgSettings.ResetHalo();
+	UpdateShadowmap();
+	geoSettings.Apply();
+	cgSettings.UpdateShaders();
+
+	if (mol.DoingAO()) {
+		mol.PrepareAOstep();
+	}
+
+	/*
+	if (mol.ReadPdb("a55DNA.pbd")) {
+       if ((mol.natm==0) && (mol.nhetatm!=0)) geoSettings.showHetatm=true;
+       UpdateShadowmap();
+       geoSettings.Apply();
+
+       // redo shaders, as texture size could have changed 
+       cgSettings.UpdateShaders();
+	}
+	*/
 }
 
 
@@ -753,8 +714,8 @@ void App::drawGraphics(int threadId, MinVR::AbstractCameraRef camera,
 
 	
 
-	const int numCubeIndices = (int)(cubeMesh->getFilledIndexByteSize()/sizeof(int));
-	const int numBgQuadIndices = (int)(bgMesh->getFilledIndexByteSize()/sizeof(int));
+//	const int numCubeIndices = (int)(cubeMesh->getFilledIndexByteSize()/sizeof(int));
+//	const int numBgQuadIndices = (int)(bgMesh->getFilledIndexByteSize()/sizeof(int));
 	//glBindBufferARB(GL_ARRAY_BUFFER_ARB, _vboId[threadId]);
 
     // enable vertex arrays
@@ -790,8 +751,15 @@ void App::drawGraphics(int threadId, MinVR::AbstractCameraRef camera,
 	glBindVertexArray(bgMesh->getVAOID());
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, numBgQuadIndices);*/
 
+	if (mol.DoingAO()) {
+		mol.PrepareAOstep();
+	}
+
+	if (mol.IsReady()) { 
+        drawFrame( hardSettings.STILL_QUALITY );  
+    }  
 	
-	
+	/*
 	
 
 	/////////////////////////////
@@ -811,8 +779,7 @@ void App::drawGraphics(int threadId, MinVR::AbstractCameraRef camera,
 	camera->setObjectToWorldMatrix(cFrameMgr->getVirtualToRoomSpaceFrame());
 	shader->setUniform("model_mat", offAxisCamera->getLastAppliedModelMatrix());
 	texMan->getTexture(threadId, "Koala1")->bind(0);
-	/*glBindVertexArray(cubeMesh->getVAOID());
-	glDrawArrays(GL_TRIANGLES, 0, numCubeIndices);*/
+	
 
 	/////////////////////////////
 	// Draw Current HCI Stuff  //
@@ -879,9 +846,6 @@ void App::drawGraphics(int threadId, MinVR::AbstractCameraRef camera,
 	*/
 	//glBindVertexArray(cubeMesh->getVAOID());
 	//glDrawArrays(GL_TRIANGLES, 0, numCubeIndices);
-
-
-	
 
 }
 

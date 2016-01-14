@@ -3,6 +3,9 @@ using namespace vcg;
 #include <vector>
 using namespace std;
 
+#ifndef CUBEMAP_H
+#define CUBEMAP_H
+
 class CubeMapSamp{
 public:
 
@@ -263,4 +266,4 @@ public:
 };
 
 
-
+#endif

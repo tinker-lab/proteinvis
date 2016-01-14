@@ -32,6 +32,12 @@
 #include "ByteStream.h"
 #include "app/include/NewAnchoredExperimentHCI.h"
 #include "app/include/OrigAnchoredHCI.h"
+#include "app/include/Common.h"
+#include "app/include/Mol.h"
+#include "app/include/HardSettings.h"
+#include "app/include/MyCanvas.h"
+
+extern Mol mol;
 
 class App : public MinVR::AbstractMVRApp {
 public:
@@ -51,7 +57,6 @@ private:
 	void initLights();
 	ByteData eventToByteData(MinVR::EventRef event);
 	MinVR::EventRef byteDataToEvent(ByteData data);
-	void replayEventStream(ByteStream stream);
 	void saveEventStream(const std::string &eventStreamFilename);
 	void loadEventStream(const std::string &eventStreamFilename);
 	void generateTrials();

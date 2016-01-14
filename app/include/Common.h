@@ -1,5 +1,11 @@
+
+
 #include "app/include/CgUtil.h"
 #include <stdio.h>
+
+#ifndef COMMON_H
+#define COMMON_H
+
 extern int winx, winy;
 
 typedef unsigned char Byte;
@@ -60,9 +66,6 @@ extern CgUtil shadowSettings;
 
 extern  float background;
 
-void StartTime();
-long int TakeTime(FILE *f, char *st);
-long int TakeTotalTime();
 void  Cycle(  float &c, float min, float max, float step);
 
 void SetColMode(float mode);
@@ -78,4 +81,4 @@ void ChangeColorSchema(int i=-1);
 //bool LoadImagePPM( const char * filename , vector<Byte> &im);
 //bool SaveImagePPM( const char * filename , const vector<Byte> &im, int sizex, int sizey);
 
-
+#endif

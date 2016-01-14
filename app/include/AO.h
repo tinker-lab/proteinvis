@@ -3,6 +3,9 @@
 #include <vcg/space/point3.h>
 // class to compute ambient occlusion
 
+#ifndef AO_H
+#define AO_H
+
 class AO{
 //private:
   vcg::Point3f dir; // direction
@@ -28,3 +31,5 @@ public:
 AO( vcg::Point3f _dir, Mol &m);
 
 };
+
+#endif
