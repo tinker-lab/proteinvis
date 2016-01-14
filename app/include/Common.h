@@ -2,6 +2,7 @@
 
 #include "app/include/CgUtil.h"
 #include <stdio.h>
+#include "app/include/CFrameMgr.h"
 
 #ifndef COMMON_H
 #define COMMON_H
@@ -47,7 +48,7 @@ int InitQuteMol(const char * filename);
 // returns an ERRGL code
 int initGl();
 
-void drawFrame(int quality);
+void drawFrame(int quality, std::shared_ptr<CFrameMgr> cFrameMgr);
 void clearFrame();
 void UpdateShadowmap();
 

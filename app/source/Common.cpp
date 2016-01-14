@@ -35,6 +35,7 @@ extern CgUtil shadowSettingsAcc;
 
 GeoSettings geoSettings; // singleton
 
+#include <glm/gtc/type_ptr.hpp>
 
 //extern Mol mol;
 
@@ -126,7 +127,7 @@ void UpdateShadowmap(){
 }
 
 
-void drawFrame(); // def later...
+void drawFrame(std::shared_ptr<CFrameMgr> cFrameMgr); // def later...
 
 Byte* GetSnapshot(int sx, int sy, bool alpha){
   
@@ -141,7 +142,7 @@ Byte* GetSnapshot(int sx, int sy, bool alpha){
   
   if (!mainCanvas.SetAsOutput()) return nullptr; 
 
-  drawFrame();
+  drawFrame(nullptr);
   
   // capture frame
   sx=sy=mainCanvas.GetHardRes();
@@ -187,7 +188,7 @@ void setProjection(int res){
 
 
 
-void MakeHiqualityScreen(int quality){
+void MakeHiqualityScreen(int quality, std::shared_ptr<CFrameMgr> cFrameMgr){
   int curres=mainCanvas.GetSoftRes();
   
   mainCanvas.RedirectToMemory();
@@ -198,13 +199,13 @@ void MakeHiqualityScreen(int quality){
     // something went wrong. Fall-back: do a normal screenshot
     mainCanvas.RedirectToVideo();
     mainCanvas.SetAsOutput();
-    drawFrame();
+    drawFrame(cFrameMgr);
     return; 
   }
   
   float HSratio = float(mainCanvas.GetSoftRes()) / mainCanvas.GetHardRes();
 
-  drawFrame();
+  drawFrame(cFrameMgr);
   
   mainCanvas.RedirectToVideo();
   mainCanvas.SetAsOutput();
@@ -256,10 +257,10 @@ void MakeHiqualityScreen(int quality){
 }
 
 
-void drawFrame(int quality){
+void drawFrame(int quality, std::shared_ptr<CFrameMgr> cFrameMgr){
   if (quality==100) {
-    drawFrame();
-  } else MakeHiqualityScreen(quality);
+    drawFrame(cFrameMgr);
+  } else MakeHiqualityScreen(quality, cFrameMgr);
 }
 
 
@@ -800,7 +801,7 @@ void setLightDir(Point3f d){
   glLightfv(GL_LIGHT0, GL_POSITION, f );
 }
 
-void drawFrame() {
+void drawFrame(std::shared_ptr<CFrameMgr> cFrameMgr) {
   
     cgSettings.MakeShaders();
     
@@ -889,6 +890,8 @@ void drawFrame() {
     setProjection( mainCanvas.GetVideoSize() );
    
 	//TODO:---------------------set object to world here
+	glMultMatrix (glm::value_ptr(cFrameMgr->getVirtualToRoomSpaceFrame()));
+
 	//track.GetView();
     //track.Apply(false);
     setProjection( mainCanvas.GetSoftRes() );

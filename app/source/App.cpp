@@ -751,12 +751,12 @@ void App::drawGraphics(int threadId, MinVR::AbstractCameraRef camera,
 	glBindVertexArray(bgMesh->getVAOID());
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, numBgQuadIndices);*/
 
-	if (mol.DoingAO()) {
-		mol.PrepareAOstep();
-	}
+	//glm::dvec2 rotAngles(-20.0, 45.0);
+	//glm::dmat4 rotate1 = glm::rotate(glm::dmat4(1.0), rotAngles.y, glm::dvec3(0.0,1.0,0.0));
+	//cFrameMgr->setRoomToVirtualSpaceFrame(rotate1);
 
 	if (mol.IsReady()) { 
-        drawFrame( hardSettings.STILL_QUALITY );  
+		drawFrame( hardSettings.STILL_QUALITY, cFrameMgr);  
     }  
 	
 	/*

@@ -1399,13 +1399,13 @@ MOV nor, data;  \n"
   
   // tentativo prospettiva figa
   if ((projmode==PERSPECTIVE)&&(proj_figa)) {
-/*  sprintf(fp,"%s\
+  sprintf(fp,"%s\
 MAD tmp, fragment.position, {0.00390625, 0.00390625, 0,0}, {-1,-1,0,0};  \n\
 DP4 tmp.x, tmp, data;  \n\
 MUL tmp.x, tmp.x, 0.5;  \n\
 MAD data.xy, data, tmp.x, data;  \n\
 "
-  ,fp);*/
+  ,fp);
     
   }
   
